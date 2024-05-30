@@ -12,6 +12,12 @@
     "categories": ["all"]
   },
   {
+    "name": "Fancade",
+    "link": "https://play.fancade.com",
+    "image": "https://www.fancade.com/images/fancade.jpg",
+    "categories": ["all"]
+  },
+  {
     "name": "Amazon Luna",
     "link": "https://luna.amazon.com/",
     "image": "/assets/media/icons/amazon-luna.webp",
@@ -1039,9 +1045,9 @@
   },
   {
     "name": "Idle Breakout",
-    "link": "https://interstellarnetwork.github.io/Interstellar-Assets/play/idle-breakout/index.html",
+    "link": "/e/1/idle-breakout/index.html",
     "image": "/assets/media/icons/idlebreakout.webp",
-    "categories": ["all"]
+    "categories": ["all", "local"]
   },
   {
     "name": "Isleward",
@@ -1485,9 +1491,7 @@
     "name": "Taming.io",
     "link": "https://taming.io/",
     "image": "/assets/media/icons/tamingio.webp",
-    "categories": ["all"],
-    "error": "true",
-    "say": "Taming.io is currently broken on the proxy and will crash Interstellar when attempted to load."
+    "categories": ["all"]
   },
   {
     "name": "Temple of Boom",
