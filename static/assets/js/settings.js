@@ -1,3 +1,197 @@
+// if statement hell featuring a stupid amount of functions
+
+// Utility Functions
+function Popup() {
+  document.querySelector(".settings-container").style.display = "none"
+  document.querySelector(".popup").style.display = "block"
+}
+
+function ClosePopup() {
+  document.querySelector(".settings-container").style.display = "flex"
+  document.querySelector(".popup").style.display = "none"
+}
+
+function initializeTheme() {
+  const themeId = localStorage.getItem("theme") || "d"
+  document.querySelector(".td").value = themeId
+}
+
+function handleThemeChange(event) {
+  const selectedValue = event.target.value
+  localStorage.setItem("theme", selectedValue)
+  window.location.reload()
+}
+
+function initializeBackground() {
+  const savedBackgroundImage = localStorage.getItem("backgroundImage")
+  if (savedBackgroundImage) {
+    setBackgroundImage(savedBackgroundImage)
+  }
+}
+
+function setBackgroundImage(imageURL) {
+  document.body.style.backgroundImage = `url('${imageURL}')`
+  document.querySelector("#background-input").value = imageURL
+}
+
+function handleFileChange(event) {
+  const fileInput = event.target
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader()
+    reader.onload = function (e) {
+      const imageURL = e.target.result
+      localStorage.setItem("backgroundImage", imageURL)
+      setBackgroundImage(imageURL)
+    }
+    reader.readAsDataURL(fileInput.files[0])
+  }
+}
+
+function resetBackground() {
+  localStorage.removeItem("backgroundImage")
+  const defaultBackground = "./assets/media/background/full-main.png"
+  setBackgroundImage(defaultBackground)
+}
+
+function handleBackgroundSave() {
+  const imageURL = document.querySelector("#background-input").value
+  if (imageURL.startsWith("https://")) {
+    localStorage.setItem("backgroundImage", imageURL)
+    setBackgroundImage(imageURL)
+    document.querySelector("#background-input").value = ""
+  } else {
+    alert("Please enter a URL starting with 'https://'")
+  }
+}
+
+// CSS Content Generator
+function generateCSSContent(themeData) {
+  let cssContent = `:root {`
+  for (const [key, value] of Object.entries(themeData)) {
+    if (value) {
+      cssContent += `\n--${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`
+    }
+  }
+  cssContent += `
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  background-color: var(--background-color);
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  background-color: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: var(--primary-text-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--dark-text-color);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  background: var(--background-image);
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+::placeholder {
+  color: var(--placeholder-text-color);
+  opacity: 1;
+}
+
+.main {
+  letter-spacing: 0px;
+  font-family: 'Inter', sans-serif;
+  width: 99%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  top: 0%;
+  position: absolute;
+  z-index: 99;
+}`
+
+  return cssContent
+}
+
+function saveTheme() {
+  const themeData = {
+    background: document.querySelector("#background-input").value || "url('/./assets/media/background/full-main.png')",
+    backgroundColor: document.querySelector("#background-color-input").value || "#222",
+    inputColor: document.querySelector("#input-color-input").value || "#4545459e",
+    appCardColor: document.querySelector("#app-card-color-input").value || "#353535",
+    settingsCardColor: document.querySelector("#settings-card-color-input").value || "#2a2a2a",
+    buttonColor: document.querySelector("#button-color-input").value || "#333",
+    tabAccentColor: document.querySelector("#tab-accent-color-input").value || "#444",
+    sliderActiveColor: document.querySelector("#slider-active-color-input").value || "#4caf50",
+    sliderInactiveColor: document.querySelector("#slider-inactive-color-input").value || "#ccc",
+    logoColor: document.querySelector("#white-logo").classList.contains("selected") ? "white" : "black",
+    primaryTextColor: document.querySelector("#primary-text-color-input").value || "#fff",
+    darkTextColor: document.querySelector("#dark-text-color-input").value || "#555",
+    placeholderTextColor: document.querySelector("#placeholder-text-color-input").value || "#aaa",
+  }
+
+  const cssContent = generateCSSContent(themeData)
+  localStorage.setItem("themeCSS", cssContent)
+}
+
+// Event Listeners
+document.addEventListener("DOMContentLoaded", () => {
+  initializeTheme()
+  initializeBackground()
+
+  document.querySelector(".td").addEventListener("change", handleThemeChange)
+
+  let fileInput = document.createElement("input")
+  fileInput.type = "file"
+  fileInput.accept = "image/*"
+  fileInput.style.display = "none"
+  document.body.appendChild(fileInput)
+
+  document.querySelector("#upload-button").addEventListener("click", () => fileInput.click())
+  fileInput.addEventListener("change", handleFileChange)
+
+  document.querySelector("#reset-button").addEventListener("click", resetBackground)
+
+  document.querySelector("#black-button").addEventListener("click", resetBackground)
+
+  document.querySelector("#white-button").addEventListener("click", () => {
+    const whiteBackgroundURL = "./assets/media/background/full-inverted.png"
+    localStorage.setItem("backgroundImage", whiteBackgroundURL)
+    setBackgroundImage(whiteBackgroundURL)
+  })
+
+  document.querySelector("#save-button").addEventListener("click", handleBackgroundSave)
+
+  document.querySelector("#save-theme").addEventListener("click", saveTheme)
+})
+
+function dataURItoBlob(dataURI) {
+  const byteString = dataURI.split(",")[0].indexOf("base64") >= 0 ? atob(dataURI.split(",")[1]) : unescape(dataURI.split(",")[1])
+  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0]
+
+  const arrayBuffer = new ArrayBuffer(byteString.length)
+  const ia = new Uint8Array(arrayBuffer)
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i)
+  }
+
+  return new Blob([arrayBuffer], { type: mimeString })
+}
 // Ads
 document.addEventListener("DOMContentLoaded", () => {
   function adChange(selectedValue) {
@@ -10,15 +204,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  var adTypeElement = document.getElementById("adType")
+  let adTypeElement = document.getElementById("adType")
 
   if (adTypeElement) {
     adTypeElement.addEventListener("change", function () {
-      var selectedOption = this.value
+      let selectedOption = this.value
       adChange(selectedOption)
     })
 
-    var storedAd = localStorage.getItem("ads")
+    let storedAd = localStorage.getItem("ads")
     if (storedAd === "on") {
       adTypeElement.value = "default"
     } else if (storedAd === "popups") {
@@ -37,8 +231,9 @@ document.addEventListener("DOMContentLoaded", () => {
   iconElement.value = customIcon
   nameElement.value = customName
 
-  localStorage.setItem("ab", true)
-  document.getElementById("ab-settings-switch").checked = true
+  if (localStorage.getItem("ab") === "true") {
+    document.getElementById("ab-settings-switch").checked = true
+  }
 })
 
 // Dyn
@@ -53,15 +248,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  var pChangeElement = document.getElementById("pChange")
+  let pChangeElement = document.getElementById("pChange")
 
   if (pChangeElement) {
     pChangeElement.addEventListener("change", function () {
-      var selectedOption = this.value
+      let selectedOption = this.value
       pChange(selectedOption)
     })
 
-    var storedP = localStorage.getItem("uv")
+    let storedP = localStorage.getItem("uv")
     if (storedP === "true") {
       pChangeElement.value = "uv"
     } else if (localStorage.getItem("dy") === "true" || localStorage.getItem("dy") === "auto") {
@@ -92,7 +287,7 @@ eventKeyInput.addEventListener("input", () => {
   eventKey = eventKeyInput.value.split(",")
 })
 
-var linkInput = document.getElementById("linkInput")
+let linkInput = document.getElementById("linkInput")
 linkInput.addEventListener("input", () => {
   pLink = linkInput.value
 })
@@ -106,10 +301,10 @@ function saveEventKey() {
   window.location = window.location
 }
 // Tab Cloaker
-var dropdown = document.getElementById("dropdown")
-var options = dropdown.getElementsByTagName("option")
+let dropdown = document.getElementById("dropdown")
+let options = dropdown.getElementsByTagName("option")
 
-var sortedOptions = Array.from(options).sort((a, b) => a.textContent.localeCompare(b.textContent))
+let sortedOptions = Array.from(options).sort((a, b) => a.textContent.localeCompare(b.textContent))
 
 while (dropdown.firstChild) {
   dropdown.removeChild(dropdown.firstChild)
@@ -154,8 +349,8 @@ function ResetCustomCloak() {
 }
 
 function redirectToMainDomain() {
-  var currentUrl = window.location.href
-  var mainDomainUrl = currentUrl.replace(/\/[^\/]*$/, "")
+  let currentUrl = window.location.href
+  let mainDomainUrl = currentUrl.replace(/\/[^\/]*$/, "")
   if (window != top) {
     top.location.href = mainDomainUrl + window.location.pathname
   } else {
@@ -166,13 +361,13 @@ function redirectToMainDomain() {
 document.addEventListener("DOMContentLoaded", (event) => {
   const icon = document.getElementById("tab-favicon")
   const name = document.getElementById("tab-title")
-  var selectedValue = localStorage.getItem("selectedOption") || "Default"
+  let selectedValue = localStorage.getItem("selectedOption") || "Default"
   document.getElementById("dropdown").value = selectedValue
   updateHeadSection(selectedValue)
 })
 
 function handleDropdownChange(selectElement) {
-  var selectedValue = selectElement.value
+  let selectedValue = selectElement.value
   localStorage.removeItem("CustomName")
   localStorage.removeItem("CustomIcon")
   localStorage.setItem("selectedOption", selectedValue)
@@ -193,38 +388,12 @@ function updateHeadSection(selectedValue) {
     localStorage.setItem("icon", customIcon)
   }
 }
-// Background Image
-document.addEventListener("DOMContentLoaded", () => {
-  var saveButton = document.getElementById("save-button")
-  saveButton.addEventListener("click", () => {
-    var backgroundInput = document.getElementById("background-input")
-    var imageURL = backgroundInput.value
-
-    if (imageURL !== "") {
-      localStorage.setItem("backgroundImage", imageURL)
-      document.body.style.backgroundImage = "url('" + imageURL + "')"
-      backgroundInput.value = ""
-    } else {
-    }
-  })
-
-  var resetButton = document.getElementById("reset-button")
-  resetButton.addEventListener("click", () => {
-    localStorage.removeItem("backgroundImage")
-    document.body.style.backgroundImage = "url('default-background.jpg')"
-  })
-
-  var savedBackgroundImage = localStorage.getItem("backgroundImage")
-  if (savedBackgroundImage) {
-    document.body.style.backgroundImage = "url('" + savedBackgroundImage + "')"
-  }
-})
 // Particles
 
 const switches = document.getElementById("2")
 
-if (window.localStorage.getItem("Particles") != "") {
-  if (window.localStorage.getItem("Particles") == "true") {
+if (window.localStorage.getItem("particles") != "") {
+  if (window.localStorage.getItem("particles") == "true") {
     switches.checked = true
   } else {
     switches.checked = false
@@ -233,36 +402,11 @@ if (window.localStorage.getItem("Particles") != "") {
 
 switches.addEventListener("change", (event) => {
   if (event.currentTarget.checked) {
-    window.localStorage.setItem("Particles", "true")
+    window.localStorage.setItem("particles", "true")
   } else {
-    window.localStorage.setItem("Particles", "false")
+    window.localStorage.setItem("particles", "false")
   }
 })
-// Themes
-
-var themeId = localStorage.getItem("theme")
-if (themeId == "") {
-  themeId = "d"
-}
-
-document.getElementsByClassName("td")[0].value = themeId
-
-const themeDropdown = document.getElementsByClassName("td")
-dropdown.addEventListener("change", () => {
-  const selectedValue = dropdown.value
-
-  localStorage.setItem("theme", selectedValue)
-
-  window.location = window.location
-})
-
-function themeChange(ele) {
-  const selTheme = ele.value
-
-  localStorage.setItem("theme", selTheme)
-
-  window.location = window.location
-}
 // AB Cloak
 function AB() {
   let inFrame
@@ -276,7 +420,7 @@ function AB() {
   if (!inFrame && !navigator.userAgent.includes("Firefox")) {
     const popup = open("about:blank", "_blank")
     if (!popup || popup.closed) {
-      alert("Please allow popups and redirects.")
+      alert("Window blocked. Please allow popups for this site.")
     } else {
       const doc = popup.document
       const iframe = doc.createElement("iframe")
@@ -296,9 +440,6 @@ function AB() {
       style.border = style.outline = "none"
       style.width = style.height = "100%"
 
-      doc.head.appendChild(link)
-      doc.body.appendChild(iframe)
-
       const pLink = localStorage.getItem(encodeURI("pLink")) || getRandomURL()
       location.replace(pLink)
 
@@ -310,6 +451,8 @@ function AB() {
           return confirmationMessage;
         };
       `
+      doc.head.appendChild(link)
+      doc.body.appendChild(iframe)
       doc.head.appendChild(script)
     }
   }
@@ -318,7 +461,7 @@ function AB() {
 function toggleAB() {
   ab = localStorage.getItem("ab")
   if (!ab) {
-    localStorage.setItem("ab", "false")
+    localStorage.setItem("ab", "true")
   } else if (ab === "true") {
     localStorage.setItem("ab", "false")
   } else {
@@ -327,9 +470,9 @@ function toggleAB() {
 }
 // Search Engine
 function EngineChange(dropdown) {
-  var selectedEngine = dropdown.value
+  let selectedEngine = dropdown.value
 
-  var engineUrls = {
+  let engineUrls = {
     Google: "https://www.google.com/search?q=",
     Bing: "https://www.bing.com/search?q=",
     DuckDuckGo: "https://duckduckgo.com/?q=",
@@ -346,7 +489,7 @@ function EngineChange(dropdown) {
 }
 
 function SaveEngine() {
-  var customEngine = document.getElementById("engine-form").value
+  let customEngine = document.getElementById("engine-form").value
   if (customEngine.trim() !== "") {
     localStorage.setItem("engine", customEngine)
     localStorage.setItem("enginename", "Custom")
@@ -356,8 +499,8 @@ function SaveEngine() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  var selectedEngineName = localStorage.getItem("enginename")
-  var dropdown = document.getElementById("engine")
+  let selectedEngineName = localStorage.getItem("enginename")
+  let dropdown = document.getElementById("engine")
   if (selectedEngineName) {
     dropdown.value = selectedEngineName
   }
@@ -373,6 +516,11 @@ function getRandomURL() {
     "https://slides.google.com",
     "https://www.nasa.gov",
     "https://blooket.com",
+    "https://clever.com",
+    "https://edpuzzle.com",
+    "https://khanacademy.org",
+    "https://wikipedia.org",
+    "https://dictionary.com",
   ]
   return randomURLS[randRange(0, randomURLS.length)]
 }
