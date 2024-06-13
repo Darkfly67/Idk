@@ -46,6 +46,13 @@ You must run these commands on your server:
 git clone https://github.com/UseInterstellar/Interstellar
 cd Interstellar
 ```
+
+#### Ad-Free Deployment
+```bash
+git clone --branch Ad-Free https://github.com/UseInterstellar/Interstellar
+cd Interstellar
+```
+
 Next depending on your package manager, run one of the following commands:
 
 #### Bun
