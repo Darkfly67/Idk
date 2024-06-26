@@ -4,5 +4,5 @@ const config = {
     // You can add multiple users by doing username: 'password'.
     kysisnotok155: "kysisnotok155",
   },
-}
-export default config
+};
+export default config;
